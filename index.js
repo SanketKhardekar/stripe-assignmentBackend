@@ -41,9 +41,9 @@ app.use(compression({
 app.use('/api/payment',payment);
 
 //Default Not Found Route 
-app.all("*",(req,res)=>{
-  res.json({ message:"API Not Found!" })
-})
+// app.all("*",(req,res)=>{
+//   res.json({ message:"API Not Found!" })
+// })
   
 // Listening
 app.listen(5000,()=>{

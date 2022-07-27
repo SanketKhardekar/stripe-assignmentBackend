@@ -6,12 +6,61 @@ require("dotenv").config();
 const stripe = Stripe(process.env.STRIP_TEST_KEY);
 
 const router = express.Router();
-
+/**
+ * @openapi
+ * '/api/payment':
+ *  post:
+ *      tags:
+ *      - Payment
+ *      summary: Create Payment Using Stripe
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - userId
+ *                  - customername
+ *                  - cartItems
+ *                properties:
+ *                  userId:
+ *                      type: number
+ *                  customername:
+ *                      type: string
+ *                  cartItems:
+ *                      type: array
+ *                      cartItems:
+ *                            type: object
+ *        responses:
+ *          200:
+ *            description: Success
+ *          400:
+ *            description: Bad request
+ *          404:
+ *            description: Not Found
+ */
 router.post("/", async (req, res) => {
+  if (!req.body.userId) {
+    res.status(400).json({ error: "true", message: "Please Provide User Id" });
+    return;
+  }
+  if (!req.body.customername || req.body.customername.trim().length === 0) {
+    res
+      .status(400)
+      .json({ error: "true", message: "Please Provide Customer Name" });
+    return;
+  }
+  if (!req.body.cartItems || req.body.cartItems.length === 0) {
+    res
+      .status(400)
+      .json({ error: "true", message: "Please Provide Cart Items" });
+    return;
+  }
   const customer = await stripe.customers.create({
     metadata: {
       userId: req.body.userId,
-      userName:req.body.customername,
+      userName: req.body.customername,
       cart: JSON.stringify(req.body.cartItems),
     },
   });
@@ -88,7 +137,7 @@ router.post("/", async (req, res) => {
     line_items,
     mode: "payment",
     success_url: `${process.env.CLIENT_URL}?success=true`,
-    cancel_url: `${process.env.CLIENT_URL}?canceled=true`,
+    cancel_url: `${process.env.CLIENT_URL}?cancelled=true`,
   });
   res.json({ url: session.url });
 });
@@ -96,6 +145,7 @@ router.post("/", async (req, res) => {
 // server.js
 const endpointSecret = process.env.WEBHOOK_SECRET;
 
+//Web Hook Post Request Will get Called Automatically
 router.post(
   "/webhook",
   express.raw({ type: "application/json" }),
@@ -126,7 +176,7 @@ router.post(
     if (eventType === "checkout.session.completed") {
       try {
         let customer = await stripe.customers.retrieve(data.customer);
-        createOrder(customer,data);
+        createOrder(customer, data);
       } catch (error) {
         console.log(error.message);
       }
@@ -136,5 +186,9 @@ router.post(
     response.send().end();
   }
 );
+//Default Not Found Route 
+router.all("*",(req,res)=>{
+  res.json({ message:"API Not Found!" })
+})
 
 module.exports = router;
