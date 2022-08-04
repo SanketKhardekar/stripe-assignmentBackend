@@ -1,5 +1,5 @@
 const Order= require("../schemas/order.schema");
-
+const logger=require("../utils/logger.util");
 //Controller to save order data in mongo db
 const createOrder = async(customer, data)=>{
     const Items= JSON.parse(customer.metadata.cart);
@@ -15,7 +15,7 @@ const createOrder = async(customer, data)=>{
         await order.save();
         return   
     } catch (error) {
-        console.log(error.message);
+        logger.error(error.message);
         return
     }
 }

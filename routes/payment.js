@@ -1,6 +1,7 @@
 const express = require("express");
 const Stripe = require("stripe");
 const createOrder = require("../controllers/order.controller");
+const logger=require('../utils/logger.util');
 require("dotenv").config();
 
 const stripe = Stripe(process.env.STRIP_TEST_KEY);
@@ -164,9 +165,9 @@ router.post(
         header,
         endpointSecret
       );
-      console.log("webhook verified");
+      logger.log("Webhook Verified");
     } catch (err) {
-      console.log(`Webhook Error: ${err.message}`);
+      logger.error(`Webhook Error: ${err.message}`)
       response.status(400).send(`Webhook Error: ${err.message}`);
       return;
     }
@@ -178,7 +179,7 @@ router.post(
         let customer = await stripe.customers.retrieve(data.customer);
         createOrder(customer, data);
       } catch (error) {
-        console.log(error.message);
+        logger.error(error.message);
       }
     }
 
