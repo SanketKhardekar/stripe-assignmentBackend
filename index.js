@@ -2,8 +2,6 @@
 const cors= require('cors');
 const express= require('express');
 const compression= require('compression');
-const stripe= require('stripe')('sk_test_51LNu5CSGzvWToUHKpgDznQMLUXL1TuRgXJ5AsRobBfQ2TnUKxR3WGY0ZfK5d2SHQt3zmXBxqUzUXEi9mM63hVm2U00pZLzxmuP')
-const uuid=require("uuid");
 const mongoose= require('mongoose');
 require("dotenv").config();
 
